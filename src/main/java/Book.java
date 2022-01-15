@@ -1,3 +1,5 @@
+import java.io.IOException;
+
 public class Book {
     public int bookId;
     public String bookDescription;
@@ -59,5 +61,22 @@ public class Book {
         public void setSize(Size size) {
             this.size = size;
         }
+    }
+    public static Book setBook() throws IOException {
+        Book book = new Book();
+        book.setBookId(Integer.parseInt(PropertyReader.fetchPropertyValue("bookId").toString()));
+        book.setBookLanguage(PropertyReader.fetchPropertyValue("bookLanguage").toString());
+        book.setBookName(PropertyReader.fetchPropertyValue("bookName").toString());
+        book.setBookDescription(PropertyReader.fetchPropertyValue("bookDescription").toString());
+        book.setPublicationYear(Integer.parseInt(PropertyReader.fetchPropertyValue("publicationYear").toString()));
+        Book.Additional additional = new Book.Additional();
+        additional.setPageCount(Integer.parseInt(PropertyReader.fetchPropertyValue("pageCount").toString()));
+        Book.Additional.Size size = new Book.Additional.Size();
+        size.setHeight(Integer.parseInt(PropertyReader.fetchPropertyValue("height").toString()));
+        size.setLength(Integer.parseInt(PropertyReader.fetchPropertyValue("length").toString()));
+        size.setWidth(Integer.parseInt(PropertyReader.fetchPropertyValue("width").toString()));
+        additional.setSize(size);
+        book.setAdditional(additional);
+        return book;
     }
 }
