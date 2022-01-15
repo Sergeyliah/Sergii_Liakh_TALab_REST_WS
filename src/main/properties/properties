@@ -1,0 +1,27 @@
+authorId=1
+authorFirstName=Taras
+authorSecondName=Shevchenko
+nationality=ukrainian
+date=1814-03-09
+country=Ukraine
+city=Morintsi
+authorDescription=Famous ukrainian writer and painter
+authorIdForDeleteRequest=1
+
+bookId=1
+bookLanguage=ukrainian
+bookName=Kobzar
+bookDescription=Famous book of Taras Shevchenko
+publicationYear=1840
+pageCount=352
+height=25
+length=210
+width=145
+bookIdForDeleteRequest=1
+
+genreId=1
+genreName=poetry
+genreDescription=genre of poetry
+genreIdForDeleteRequest=1
+
+
