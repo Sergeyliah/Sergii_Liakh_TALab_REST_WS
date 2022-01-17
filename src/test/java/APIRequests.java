@@ -1,8 +1,10 @@
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import net.minidev.json.parser.ParseException;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 
@@ -10,14 +12,20 @@ import java.io.IOException;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.lessThan;
 
 public class APIRequests {
+
+    @BeforeMethod
+    public void setup() {
+        RestAssured.baseURI = "http://localhost:8080/api/library";
+    }
 
     @Test(description = "Get all Authors and print authors second name")
     public void tc_01() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/authors");
+                get("/authors");
         List<Author> authors = resp.jsonPath().getList("$", Author.class);
         for (Author tmp : authors){
             System.out.println(tmp.authorName.second);
@@ -36,25 +44,27 @@ public class APIRequests {
     public void tc_02() {
         ValidatableResponse resp = given().
                 when().
-                get("http://localhost:8080/api/library/author/1534").then().
+                get("/author/480").then().
                 assertThat().
                 statusCode(200).log().all();
     }
 
-    @Test(description = "Get all Books")
+    @Test(description = "Get all Books, assert time of response")
     public void tc_03() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/books");
+                get("/books");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
+        given().when().get("/books")
+                .then().and().time(lessThan(1000L));
     }
 
     @Test(description = "Get all genres")
     public void tc_04() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/genres");
+                get("/genres");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -64,7 +74,7 @@ public class APIRequests {
 
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/book/51/author");
+                get("/book/51/author");
         Assert.assertEquals(resp.getStatusCode(), 404);
         System.out.println(resp.asString());
     }
@@ -73,7 +83,7 @@ public class APIRequests {
     public void tc_06() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/genre/25/authors");
+                get("/genre/227/authors");
         List<Author> authors = resp.jsonPath().getList("$", Author.class);
         boolean x = false;
         for (Author tmp : authors){
@@ -90,7 +100,7 @@ public class APIRequests {
     public void tc_07() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/author/36/books");
+                get("/author/480/books");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -99,7 +109,7 @@ public class APIRequests {
     public void tc_08() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/author/75/genre/1334/books");
+                get("/author/480/genre/227/books");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -108,7 +118,7 @@ public class APIRequests {
     public void tc_09() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/book/51");
+                get("/book/15");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -117,7 +127,7 @@ public class APIRequests {
     public void tc_10() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/genre/1334/books");
+                get("/genre/227/books");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -126,7 +136,7 @@ public class APIRequests {
     public void tc_11() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/author/75/genres");
+                get("/author/480/genres");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -135,7 +145,7 @@ public class APIRequests {
     public void tc_12() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/book/51/genre");
+                get("/book/15/genre");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -144,7 +154,7 @@ public class APIRequests {
     public void tc_13() {
         Response resp = given().
                 when().
-                get("http://localhost:8080/api/library/genre/1334");
+                get("/genre/227");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -157,7 +167,7 @@ public class APIRequests {
                 contentType(ContentType.JSON).
                 accept(ContentType.JSON).
                 body((Author.setAuthorJsonObject()).toString()).
-                post("http://localhost:8080/api/library/author");
+                post("/author");
         Assert.assertEquals(resp.getStatusCode(), 201);
         System.out.println(resp.asString());
     }
@@ -169,7 +179,7 @@ public class APIRequests {
                 when().
                 contentType(ContentType.JSON).
                 body(Author.setAutor()).
-                put("http://localhost:8080/api/library/author");
+                put("/author");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -178,7 +188,7 @@ public class APIRequests {
     public void tc_16() throws IOException {
         Response resp = given().
                 when().
-                delete("http://localhost:8080/api/library/author/"+PropertyReader.fetchPropertyValue("authorIdForDeleteRequest"));
+                delete("/author/"+PropertyReader.fetchPropertyValue("authorIdForDeleteRequest"));
         System.out.println("Deleting response status code: "+resp.getStatusCode());
         Assert.assertEquals(resp.getStatusCode(), 204);
     }
@@ -190,7 +200,7 @@ public class APIRequests {
                 when().
                 contentType(ContentType.JSON).
                 body(Genre.setGenre()).
-                post("http://localhost:8080/api/library/genre");
+                post("/genre");
         Assert.assertEquals(resp.getStatusCode(), 201);
         System.out.println(resp.asString());
     }
@@ -202,7 +212,7 @@ public class APIRequests {
                 when().
                 contentType(ContentType.JSON).
                 body(Book.setBook()).
-                post("http://localhost:8080/api/library/book/1/1");
+                post("/book/1/1");
         Assert.assertEquals(resp.getStatusCode(), 201);
         System.out.println(resp.asString());
     }
@@ -214,7 +224,7 @@ public class APIRequests {
                 when().
                 contentType(ContentType.JSON).
                 body(Book.setBook()).
-                put("http://localhost:8080/api/library/book");
+                put("/book");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -223,7 +233,7 @@ public class APIRequests {
     public void tc_20() throws IOException {
         Response resp = given().
                 when().
-                delete("http://localhost:8080/api/library/book/"+PropertyReader.fetchPropertyValue("bookIdForDeleteRequest"));
+                delete("/book/"+PropertyReader.fetchPropertyValue("bookIdForDeleteRequest"));
         System.out.println("Deleting response status code: "+resp.getStatusCode());
         Assert.assertEquals(resp.getStatusCode(), 204);
     }
@@ -235,7 +245,7 @@ public class APIRequests {
                 when().
                 contentType(ContentType.JSON).
                 body(Genre.setGenre()).
-                put("http://localhost:8080/api/library/genre");
+                put("/genre");
         Assert.assertEquals(resp.getStatusCode(), 200);
         System.out.println(resp.asString());
     }
@@ -244,7 +254,7 @@ public class APIRequests {
     public void tc_22() throws IOException {
         Response resp = given().
                 when().
-                delete("http://localhost:8080/api/library/genre/"+PropertyReader.fetchPropertyValue("genreIdForDeleteRequest"));
+                delete("/genre/"+PropertyReader.fetchPropertyValue("genreIdForDeleteRequest"));
         System.out.println("Deleting response status code: "+resp.getStatusCode());
         Assert.assertEquals(resp.getStatusCode(), 204);
     }
